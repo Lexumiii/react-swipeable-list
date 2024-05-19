@@ -189,6 +189,8 @@ class SwipeableListItem extends PureComponent {
   };
 
   handleDragStart = ({ clientX, clientY }) => {
+    const { classes } = this.props;
+
     if (this.props.clickedCallback) {
       this.props.clickedCallback(this.id);
     }
@@ -210,16 +212,16 @@ class SwipeableListItem extends PureComponent {
 
     this.dragStartPoint = { x: clientX + startOffsetX, y: clientY };
 
-    this.listElement.className = 'swipeable-list-item__content';
+    this.listElement.className = clsx('swipeable-list-item__content', classes?.itemContent);
 
     if (this.leadingActionsElement) {
       this.leadingActionsElement.className =
-        'swipeable-list-item__leading-actions';
+        clsx('swipeable-list-item__leading-actions', classes?.leadingActions);
     }
 
     if (this.trailingActionsElement) {
       this.trailingActionsElement.className =
-        'swipeable-list-item__trailing-actions';
+        clsx('swipeable-list-item__trailing-actions', classes?.trailingActions);
     }
 
     this.startTime = Date.now();
@@ -298,16 +300,19 @@ class SwipeableListItem extends PureComponent {
     isIosType,
     playMsReturnAnimation,
   }) => {
+    const {classes} = this.props;
+
     if (this.leadingActionsElement) {
       this.leadingActionsElement.className = clsx(
         'swipeable-list-item__leading-actions',
+        classes?.leadingActions,
         playMsReturnAnimation
           ? 'swipeable-list-item__actions--return-ms'
           : 'swipeable-list-item__leading-actions--return'
       );
 
       if (this.leadingActionsOpened && isIosType && to !== 0) {
-        this.leadingActionsElement.className += ' test-actions-opened';
+        this.leadingActionsElement.className += 'test-actions-opened';
       }
 
       if (playMsReturnAnimation) {
@@ -340,9 +345,11 @@ class SwipeableListItem extends PureComponent {
     isIosType,
     playMsReturnAnimation,
   }) => {
+    const { classes } = this.props;
     if (this.trailingActionsElement) {
       this.trailingActionsElement.className = clsx(
         'swipeable-list-item__trailing-actions',
+        classes?.trailingActions,
         playMsReturnAnimation
           ? 'swipeable-list-item__actions--return-ms'
           : 'swipeable-list-item__trailing-actions--return'
@@ -383,9 +390,8 @@ class SwipeableListItem extends PureComponent {
     }
 
     const { listElement } = this;
-    const { listType } = this.props;
+    const { listType, classes } = this.props;
     const { triggerAction } = this.state;
-
     const isIosType = listType === ListType.IOS;
     const isMsType = listType === ListType.MS;
     const playMsReturnAnimation = triggerAction && isMsType;
@@ -402,6 +408,7 @@ class SwipeableListItem extends PureComponent {
     if (listElement) {
       listElement.className = clsx(
         'swipeable-list-item__content',
+        classes?.itemContent,
         playMsReturnAnimation
           ? `swipeable-list-item__content--return-${
               this.left < 0 ? 'trailing' : 'leading'
@@ -768,6 +775,8 @@ class SwipeableListItem extends PureComponent {
       setTrailingFullSwipeAction,
     } = this;
 
+    const {classes = {}} = this.props;
+
     const scaled =
       listType === ListType.MS &&
       ((scaleLeading && type === 'leading') ||
@@ -775,7 +784,7 @@ class SwipeableListItem extends PureComponent {
 
     return (
       <div
-        className={clsx(`swipeable-list-item__${type}-actions`, {
+        className={clsx(`swipeable-list-item__${type}-actions`, classes[`${type}Actions`], {
           [`swipeable-list-item__${type}-actions--scaled`]: scaled,
         })}
         data-testid={`${type}-actions`}
@@ -825,11 +834,11 @@ class SwipeableListItem extends PureComponent {
   };
 
   render() {
-    const { children, className, leadingActions, trailingActions } = this.props;
+    const { children, className, leadingActions, trailingActions, classes } = this.props;
 
     return (
       <div
-        className={clsx('swipeable-list-item', className)}
+        className={clsx('swipeable-list-item', className, classes?.item)}
         id={this.id}
         ref={this.bindWrapperElement}
         onClick={this.handleClick}
@@ -841,7 +850,7 @@ class SwipeableListItem extends PureComponent {
             this.bindLeadingActionsElement
           )}
         <div
-          className="swipeable-list-item__content"
+          className={clsx("swipeable-list-item__content", classes?.itemContent)}
           data-testid="content"
           ref={this.bindListElement}
         >
@@ -879,6 +888,7 @@ SwipeableListItem.propTypes = {
   clickedCallback: PropTypes.func,
   id: PropTypes.string,
   resetState: PropTypes.func,
+  classes: PropTypes.object,
 };
 
 export default SwipeableListItem;
